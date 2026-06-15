@@ -1,0 +1,2449 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>초보운전 안심 주차 - 전국 실시간 내비게이션 & 사전결제 대시보드</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-deep: #070a13;
+            --bg-panel: #0f1424;
+            --bg-card: #192138;
+            --bg-card-hover: #222b48;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            
+            --difficulty-easy: #00e676; /* Neon Green */
+            --difficulty-easy-glow: rgba(0, 230, 118, 0.2);
+            --difficulty-easy-bg: rgba(0, 230, 118, 0.08);
+            
+            --difficulty-hard: #ff3d00; /* Neon Red */
+            --difficulty-hard-glow: rgba(255, 61, 0, 0.2);
+            --difficulty-hard-bg: rgba(255, 61, 0, 0.08);
+            
+            --kakao-yellow: #fee500;
+            --kakao-yellow-glow: rgba(254, 229, 0, 0.25);
+            --kakao-brown: #1a1a1a;
+            
+            --border-glow: rgba(255, 255, 255, 0.06);
+            --border-radius-lg: 16px;
+            --border-radius-md: 12px;
+            --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+
+        /* Full Screen Desktop App Container */
+        .app-container {
+            width: 100%;
+            height: 100vh;
+            background-color: var(--bg-deep);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* KakaoNavi Header */
+        .app-header {
+            background-color: #0d1222;
+            color: var(--text-main);
+            padding: 14px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 12;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            background-color: var(--kakao-yellow);
+            color: var(--kakao-brown);
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            box-shadow: 0 0 12px var(--kakao-yellow-glow);
+        }
+
+        .logo-title {
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-title span {
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        .header-info-btn {
+            font-size: 20px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .header-info-btn:hover {
+            color: var(--kakao-yellow);
+        }
+
+        /* Main Workspace Split Layout */
+        .main-workspace {
+            display: flex;
+            flex-direction: row;
+            height: calc(100vh - 65px);
+            width: 100%;
+            overflow: hidden;
+        }
+
+        /* Left Side: Controls & Cards list (Sidebar) */
+        .sidebar-section {
+            width: 400px;
+            min-width: 380px;
+            height: 100%;
+            background-color: var(--bg-panel);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        /* Search Bar styling inside Sidebar */
+        .search-area {
+            padding: 16px 20px;
+            background-color: #0c0f1d;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .search-form {
+            position: relative;
+            width: 100%;
+            display: flex;
+            gap: 8px;
+        }
+
+        .search-input {
+            flex: 1;
+            background-color: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--border-radius-md);
+            padding: 12px 14px 12px 38px;
+            color: var(--text-main);
+            font-size: 13px;
+            outline: none;
+            transition: var(--transition-smooth);
+        }
+
+        .search-input:focus {
+            border-color: var(--kakao-yellow);
+            background-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 10px rgba(254, 229, 0, 0.1);
+        }
+
+        .search-icon-inside {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        .search-btn {
+            background-color: var(--kakao-yellow);
+            color: var(--kakao-brown);
+            border: none;
+            border-radius: var(--border-radius-md);
+            padding: 0 16px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-btn:hover {
+            box-shadow: 0 0 12px var(--kakao-yellow-glow);
+            transform: translateY(-1px);
+        }
+
+        /* Vehicle Configuration Input */
+        .vehicle-settings {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: var(--border-radius-md);
+            padding: 8px 12px;
+            margin-top: 4px;
+        }
+
+        .vehicle-settings label {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .vehicle-settings input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--kakao-yellow);
+            font-size: 13px;
+            font-weight: 700;
+            outline: none;
+            text-align: right;
+        }
+
+        /* Sidebar mini stats grid */
+        .sidebar-stats-container {
+            padding: 12px 20px;
+            background-color: rgba(0, 0, 0, 0.15);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .sidebar-stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .sidebar-stat-card {
+            background-color: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 8px;
+            padding: 8px 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sidebar-stat-card i {
+            font-size: 14px;
+        }
+
+        .sidebar-stat-card .label-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-stat-card .label {
+            font-size: 9px;
+            color: var(--text-muted);
+        }
+
+        .sidebar-stat-card .val {
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .sidebar-stat-card .val.green {
+            color: var(--difficulty-easy);
+            text-shadow: 0 0 6px var(--difficulty-easy-glow);
+        }
+
+        .sidebar-stat-card .val.yellow {
+            color: var(--kakao-yellow);
+            text-shadow: 0 0 6px var(--kakao-yellow-glow);
+        }
+
+        /* Active Ticket Dock (Exit Pass) */
+        .active-ticket-dock {
+            padding: 16px;
+            background-color: rgba(25, 33, 56, 0.45);
+            border-bottom: 1px solid rgba(254, 229, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .active-ticket-card {
+            background: linear-gradient(135deg, #101827, #1e293b);
+            border: 1.5px solid var(--kakao-yellow);
+            border-radius: var(--border-radius-lg);
+            padding: 18px 16px;
+            box-shadow: 0 10px 25px rgba(254, 229, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .active-ticket-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(254, 229, 0, 0.03) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+            margin-bottom: 12px;
+        }
+
+        .ticket-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--kakao-yellow);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Wireless Sensor Radar Ripple Animation */
+        .sensor-ripple-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: rgba(0, 230, 118, 0.08);
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 230, 118, 0.15);
+            margin-bottom: 14px;
+        }
+
+        .wifi-ripple {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+        }
+
+        .wifi-ripple .circle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: var(--difficulty-easy);
+            border-radius: 50%;
+            box-shadow: 0 0 6px var(--difficulty-easy-glow);
+        }
+
+        .wifi-ripple .wave {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border: 1.5px solid var(--difficulty-easy);
+            border-radius: 50%;
+            animation: ripple-out 1.6s infinite ease-out;
+            opacity: 0;
+        }
+
+        .wifi-ripple .wave.delay-1 {
+            animation-delay: 0.53s;
+        }
+
+        .wifi-ripple .wave.delay-2 {
+            animation-delay: 1.06s;
+        }
+
+        @keyframes ripple-out {
+            0% { width: 8px; height: 8px; opacity: 0.8; }
+            100% { width: 28px; height: 28px; opacity: 0; }
+        }
+
+        .sensor-status-text {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--difficulty-easy);
+            text-shadow: 0 0 8px var(--difficulty-easy-glow);
+            letter-spacing: -0.2px;
+        }
+
+        /* Countdown timer displays */
+        .timer-display-wrapper {
+            background-color: rgba(0,0,0,0.3);
+            border-radius: var(--border-radius-md);
+            padding: 10px;
+            text-align: center;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .timer-label {
+            font-size: 9px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            display: block;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .timer-digits {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-main);
+            font-family: monospace;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.15);
+        }
+
+        /* CSS Barcode Draw */
+        .barcode-container {
+            background-color: white;
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 14px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .barcode-lines {
+            height: 38px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .barcode-lines span {
+            display: inline-block;
+            height: 100%;
+            background-color: #0f172a;
+            margin-right: 1.5px;
+        }
+
+        .barcode-value {
+            font-family: monospace;
+            font-size: 9px;
+            color: #475569;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        /* Exit pass details grid */
+        .ticket-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            padding: 10px;
+            background-color: rgba(0,0,0,0.2);
+            border-radius: var(--border-radius-md);
+            margin-bottom: 14px;
+            border: 1px solid rgba(255,255,255,0.03);
+        }
+
+        .ticket-details-grid .row {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .ticket-details-grid .row .lbl {
+            font-size: 9px;
+            color: var(--text-muted);
+        }
+
+        .ticket-details-grid .row .val {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .btn-exit-test {
+            width: 100%;
+            background-color: #ff3d00;
+            color: white;
+            border: none;
+            border-radius: var(--border-radius-md);
+            padding: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            box-shadow: 0 4px 10px rgba(255, 61, 0, 0.2);
+        }
+
+        .btn-exit-test:hover {
+            background-color: #dd3300;
+            box-shadow: 0 4px 12px rgba(255, 61, 0, 0.3);
+        }
+
+        /* Sidebar Header Title for Cards list */
+        .sidebar-list-header {
+            padding: 14px 20px;
+            background-color: rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .sidebar-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sidebar-title i {
+            color: var(--kakao-yellow);
+        }
+
+        .sidebar-subtitle {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        /* Scrollable Card List */
+        .card-list {
+            padding: 16px;
+            overflow-y: auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background-color: #090c16;
+        }
+
+        /* Dashboard Parking Card */
+        .parking-card {
+            background-color: var(--bg-card);
+            border: 1.5px solid rgba(255, 255, 255, 0.04);
+            border-radius: var(--border-radius-lg);
+            padding: 16px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .parking-card:hover {
+            background-color: var(--bg-card-hover);
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .parking-card.active {
+            border-color: var(--kakao-yellow);
+            box-shadow: 0 0 15px rgba(254, 229, 0, 0.12);
+            background-color: #1f273d;
+        }
+
+        .card-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+            gap: 8px;
+        }
+
+        .card-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.3px;
+            line-height: 1.3;
+        }
+
+        .difficulty-indicator {
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .difficulty-indicator.easy {
+            background-color: var(--difficulty-easy-bg);
+            color: var(--difficulty-easy);
+            box-shadow: 0 0 8px var(--difficulty-easy-glow);
+            border: 1px solid rgba(0, 230, 118, 0.2);
+        }
+
+        .difficulty-indicator.hard {
+            background-color: var(--difficulty-hard-bg);
+            color: var(--difficulty-hard);
+            box-shadow: 0 0 8px var(--difficulty-hard-glow);
+            border: 1px solid rgba(255, 61, 0, 0.2);
+        }
+
+        .card-tags {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .card-tag {
+            background-color: rgba(255,255,255,0.04);
+            color: var(--text-muted);
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 500;
+            border: 1px solid rgba(255,255,255,0.02);
+        }
+
+        /* Card Danger Alert Banner */
+        .card-warning-banner {
+            background-color: rgba(255, 61, 0, 0.05);
+            border: 1px solid rgba(255, 61, 0, 0.18);
+            border-radius: var(--border-radius-md);
+            padding: 10px 12px;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .card-warning-banner i {
+            color: #ff3d00;
+            font-size: 14px;
+            margin-top: 2px;
+            animation: warning-blink 1s infinite alternate;
+        }
+
+        .card-warning-banner .warning-text {
+            font-size: 11px;
+            line-height: 1.4;
+            color: #ff8a80;
+        }
+
+        @keyframes warning-blink {
+            0% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+
+        /* Card Info Grid */
+        .card-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            padding: 10px;
+            background-color: rgba(0,0,0,0.25);
+            border-radius: var(--border-radius-md);
+            margin-bottom: 14px;
+        }
+
+        .grid-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .grid-item .label {
+            font-size: 9px;
+            color: var(--text-muted);
+        }
+
+        .grid-item .val {
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .grid-item .val.green {
+            color: var(--difficulty-easy);
+            text-shadow: 0 0 8px var(--difficulty-easy-glow);
+        }
+
+        .grid-item .val.red {
+            color: var(--difficulty-hard);
+            text-shadow: 0 0 8px var(--difficulty-hard-glow);
+        }
+
+        .capacity-bar-container {
+            width: 100%;
+            height: 4px;
+            background-color: rgba(255,255,255,0.08);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .capacity-bar {
+            height: 100%;
+            background-color: var(--difficulty-easy);
+            border-radius: 2px;
+        }
+
+        .parking-card.difficulty-상 .capacity-bar {
+            background-color: var(--difficulty-hard);
+        }
+
+        /* Card Action Buttons */
+        .card-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 10px 12px;
+            border-radius: var(--border-radius-md);
+            font-size: 12px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: var(--transition-smooth);
+        }
+
+        .btn-navi {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .btn-navi:hover {
+            border-color: var(--kakao-yellow);
+            color: var(--kakao-yellow);
+            background-color: rgba(254, 229, 0, 0.05);
+        }
+
+        .btn-navi i {
+            color: var(--kakao-yellow);
+        }
+
+        .btn-pay {
+            background-color: var(--kakao-yellow);
+            color: var(--kakao-brown);
+            box-shadow: 0 4px 10px var(--kakao-yellow-glow);
+        }
+
+        .btn-pay:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(254, 229, 0, 0.4);
+        }
+
+        /* Right Side: Map viewport (Full Screen remaining) */
+        .map-section {
+            flex: 1;
+            height: 100%;
+            position: relative;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Custom pulsing warning overlay (⚠️ Hazard Marker) */
+        .warning-overlay {
+            background: #1e1b4b;
+            border: 2px solid #ff3d00;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 61, 0, 0.6);
+            animation: warning-pulse 1.2s infinite alternate;
+        }
+
+        @keyframes warning-pulse {
+            0% { transform: scale(1); box-shadow: 0 0 8px rgba(255, 61, 0, 0.5); }
+            100% { transform: scale(1.15); box-shadow: 0 0 18px rgba(255, 61, 0, 0.9); }
+        }
+
+        /* Top Floating Stats Panel OVER Map */
+        .map-floating-stats {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 9;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius-md);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 12px 18px;
+            display: flex;
+            gap: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .map-stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .map-stat-item i {
+            font-size: 18px;
+        }
+
+        .map-stat-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .map-stat-info .label {
+            font-size: 9px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .map-stat-info .val {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        /* Floating Turn-by-Turn Navigation HUD Overlay */
+        .nav-hud {
+            position: absolute;
+            top: 75px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 15; /* Sits on top of stats bar */
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius-md);
+            border: 1.5px solid var(--kakao-yellow);
+            width: calc(100% - 24px);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 25px rgba(254, 229, 0, 0.2);
+            animation: slide-down-hud 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slide-down-hud {
+            0% { transform: translate(-50%, -20px); opacity: 0; }
+            100% { transform: translate(-50%, 0); opacity: 1; }
+        }
+
+        .hud-direction-icon {
+            background-color: var(--kakao-yellow);
+            color: var(--kakao-brown);
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            box-shadow: 0 0 10px var(--kakao-yellow-glow);
+            animation: hud-bounce 1s infinite alternate;
+        }
+
+        @keyframes hud-bounce {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-4px); }
+        }
+
+        .hud-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .hud-main-instruction {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -0.3px;
+            line-height: 1.3;
+        }
+
+        .hud-sub-instruction {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .hud-time {
+            color: var(--difficulty-easy);
+            font-weight: 700;
+        }
+
+        .hud-divider {
+            opacity: 0.3;
+        }
+
+        .btn-hud-close {
+            background: #ff3d00;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: var(--transition-smooth);
+            box-shadow: 0 4px 10px rgba(255, 61, 0, 0.25);
+        }
+
+        .btn-hud-close:hover {
+            background: #dd3300;
+        }
+
+        /* Map Recenter & Zoom Floating Buttons */
+        .recenter-btn {
+            position: absolute;
+            bottom: 24px;
+            right: 24px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: var(--bg-panel);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-main);
+            font-size: 18px;
+            z-index: 7;
+            transition: var(--transition-smooth);
+        }
+
+        .recenter-btn:hover {
+            border-color: var(--kakao-yellow);
+            color: var(--kakao-yellow);
+            box-shadow: 0 4px 18px rgba(254, 229, 0, 0.2);
+        }
+
+        /* Responsive Layout for Mobile Devices */
+        @media (max-width: 768px) {
+            .main-workspace {
+                flex-direction: column;
+            }
+            .sidebar-section {
+                width: 100%;
+                height: 55%;
+                border-right: none;
+                border-top: 1px solid rgba(255, 255, 255, 0.05);
+            }
+            .map-section {
+                height: 45%;
+                width: 100%;
+            }
+            .map-floating-stats {
+                top: 10px;
+                left: 10px;
+                padding: 8px 12px;
+                gap: 12px;
+                width: calc(100% - 20px);
+                justify-content: space-between;
+            }
+            .map-stat-item i {
+                font-size: 14px;
+            }
+            .map-stat-info .val {
+                font-size: 11px;
+            }
+            .nav-hud {
+                top: 50px;
+                width: calc(100% - 16px);
+            }
+        }
+
+        /* Styled KakaoPay Modal Dialog */
+        .payment-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(3, 7, 18, 0.85);
+            backdrop-filter: blur(12px);
+            z-index: 20;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            padding: 24px;
+        }
+
+        .payment-modal.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .payment-box {
+            background-color: var(--bg-panel);
+            width: 100%;
+            max-width: 380px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 32px 24px;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .payment-modal.open .payment-box {
+            transform: scale(1);
+        }
+
+        .payment-logo {
+            background-color: var(--kakao-yellow);
+            color: var(--kakao-brown);
+            font-weight: 900;
+            font-size: 16px;
+            padding: 5px 12px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .spinner {
+            width: 54px;
+            height: 54px;
+            border: 4px solid rgba(255, 255, 255, 0.06);
+            border-top: 4px solid var(--kakao-yellow);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px 0;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-checkmark {
+            width: 80px;
+            height: 80px;
+            position: relative;
+            margin: 10px 0;
+            display: none;
+        }
+
+        .success-checkmark .check-icon {
+            width: 80px;
+            height: 80px;
+            position: relative;
+            border-radius: 50%;
+            box-sizing: content-box;
+            border: 4px solid var(--difficulty-easy);
+        }
+
+        .success-checkmark .check-icon::after {
+            content: '';
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            border-radius: 50%;
+            box-shadow: inset 0 0 0 40px var(--difficulty-easy);
+            animation: fill-checkmark 0.4s ease-in-out forwards;
+        }
+
+        .success-checkmark .icon-line {
+            height: 5px;
+            background-color: #030712;
+            display: block;
+            border-radius: 2px;
+            position: absolute;
+            z-index: 10;
+        }
+
+        .success-checkmark .icon-line.line-tip {
+            top: 43px;
+            left: 14px;
+            width: 25px;
+            transform: rotate(45deg);
+            animation: draw-tip 0.6s ease-in-out forwards;
+            opacity: 0;
+        }
+
+        .success-checkmark .icon-line.line-long {
+            top: 38px;
+            right: 8px;
+            width: 47px;
+            transform: rotate(-45deg);
+            animation: draw-long 0.6s ease-in-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes fill-checkmark {
+            100% { box-shadow: inset 0 0 0 40px var(--difficulty-easy); }
+        }
+
+        @keyframes draw-tip {
+            0% { width: 0; opacity: 1; }
+            100% { width: 25px; opacity: 1; }
+        }
+
+        @keyframes draw-long {
+            0% { width: 0; opacity: 1; }
+            100% { width: 47px; opacity: 1; }
+        }
+
+        .payment-text {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            text-align: center;
+            margin-top: 16px;
+            line-height: 1.4;
+        }
+
+        .payment-subtext {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+
+        .payment-details {
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius-md);
+            padding: 14px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .payment-details-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .payment-details-row .label {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .payment-details-row .value {
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        .payment-close-btn {
+            width: 100%;
+            background-color: var(--kakao-yellow);
+            color: var(--kakao-brown);
+            border: none;
+            border-radius: var(--border-radius-md);
+            padding: 14px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 24px;
+            display: none;
+            transition: var(--transition-smooth);
+            box-shadow: 0 4px 10px var(--kakao-yellow-glow);
+        }
+
+        .payment-close-btn:hover {
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Full Screen Header -->
+        <header class="app-header">
+            <div class="logo-group">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-compass"></i>
+                </div>
+                <div class="logo-title">
+                    카카오내비 안심주차 대시보드
+                    <span>전국 주차장 실시간 검색 및 모바일 사전예약 시스템</span>
+                </div>
+            </div>
+            <i class="fa-solid fa-circle-question header-info-btn" title="도움말"></i>
+        </header>
+
+        <!-- Split Workspace (Side Panel & Map viewport) -->
+        <div class="main-workspace">
+            
+            <!-- Left Side: Controls & Cards list (Sidebar) -->
+            <section class="sidebar-section">
+                <!-- Search Box Area -->
+                <div class="search-area">
+                    <form class="search-form" onsubmit="handleSearch(event)">
+                        <i class="fa-solid fa-magnifying-glass search-icon-inside"></i>
+                        <input type="text" class="search-input" id="searchInput" placeholder="지역명 또는 주차장 검색 (예: 강남역, 서면)" value="창원대">
+                        <button type="submit" class="search-btn">검색</button>
+                    </form>
+                    <!-- Vehicle Config Input UI -->
+                    <div class="vehicle-settings">
+                        <i class="fa-solid fa-car-rear" style="color: var(--kakao-yellow);"></i>
+                        <label for="vehicleInput">내 차량 번호 등록</label>
+                        <input type="text" id="vehicleInput" value="34오 1234" placeholder="예: 12가 3456" oninput="updateVehicleNumber()">
+                    </div>
+                </div>
+
+                <!-- Sidebar mini stats grid -->
+                <div class="sidebar-stats-container">
+                    <div class="sidebar-stats-grid">
+                        <div class="sidebar-stat-card">
+                            <i class="fa-solid fa-circle-check" style="color: var(--difficulty-easy);"></i>
+                            <div class="label-group">
+                                <span class="label">초보 추천 (하)</span>
+                                <span class="val green" id="statRecommend">0개소</span>
+                            </div>
+                        </div>
+                        <div class="sidebar-stat-card">
+                            <i class="fa-solid fa-wallet" style="color: var(--kakao-yellow);"></i>
+                            <div class="label-group">
+                                <span class="label">결제 즉시 예약</span>
+                                <span class="val yellow" id="statPrepay">0개소</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Exit Pass Ticket Dock (Wireless Receipt) -->
+                <div class="active-ticket-dock" id="activeTicketDock" style="display: none;">
+                    <div class="active-ticket-card">
+                        <div class="ticket-header">
+                            <div class="ticket-title">
+                                <i class="fa-solid fa-ticket"></i>
+                                <span>모바일 출차 영수증 패스 (하이패스)</span>
+                            </div>
+                        </div>
+
+                        <!-- Pulsating Wireless waves UI -->
+                        <div class="sensor-ripple-container">
+                            <div class="wifi-ripple">
+                                <div class="circle"></div>
+                                <div class="wave"></div>
+                                <div class="wave delay-1"></div>
+                                <div class="wave delay-2"></div>
+                            </div>
+                            <span class="sensor-status-text">정산소 통과 대기 중 (하이패스 활성화 완료)</span>
+                        </div>
+
+                        <!-- Real-time timer countdown -->
+                        <div class="timer-display-wrapper">
+                            <span class="timer-label">남은 이용 가능 시간</span>
+                            <span class="timer-digits" id="ticketTimer">00:59:59</span>
+                        </div>
+
+                        <!-- CSS Barcode -->
+                        <div class="barcode-container">
+                            <div class="barcode-lines" id="barcodeLines">
+                                <!-- Generated by JS -->
+                            </div>
+                            <div class="barcode-value" id="barcodeValue">KXP-00000-00</div>
+                        </div>
+
+                        <!-- Digital Receipt Info Grid -->
+                        <div class="ticket-details-grid">
+                            <div class="row">
+                                <span class="lbl">차량 번호</span>
+                                <span class="val" id="ticketVehicle">34오 1234</span>
+                            </div>
+                            <div class="row">
+                                <span class="lbl">주차 정산 장소</span>
+                                <span class="val" id="ticketLotName">창원대 정문 주차장</span>
+                            </div>
+                            <div class="row">
+                                <span class="lbl">입차 시각</span>
+                                <span class="val" id="ticketEntryTime">16:30</span>
+                            </div>
+                            <div class="row">
+                                <span class="lbl">정산 요금</span>
+                                <span class="val" id="ticketAmount">1,500원</span>
+                            </div>
+                        </div>
+
+                        <button class="btn-exit-test" onclick="simulateGateExit()">
+                            <i class="fa-solid fa-door-open"></i> 출차 테스트 (정산소 통과)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Parking Card Header -->
+                <div class="sidebar-list-header">
+                    <div class="sidebar-title">
+                        <i class="fa-solid fa-square-parking"></i>
+                        <span>주차장 검색 리스트</span>
+                    </div>
+                    <span class="sidebar-subtitle" id="totalCount">주차장을 검색해주세요</span>
+                </div>
+
+                <!-- Scrollable Dashboard Card List -->
+                <div class="card-list" id="cardListContainer">
+                    <div style="text-align: center; color: var(--text-muted); padding: 40px 10px; font-size: 13px;">
+                        <i class="fa-solid fa-circle-info" style="font-size: 24px; margin-bottom: 12px; display: block; color: rgba(255,255,255,0.15);"></i>
+                        위의 검색창에 찾으시는 지역 또는 역명을 입력하고 검색을 진행하세요. (예: 서울역, 강남역, 서면, 창원대)
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Side: Map Section (Takes remaining width) -->
+            <section class="map-section">
+                <!-- Floating Stats Panel OVER Map -->
+                <div class="map-floating-stats">
+                    <div class="map-stat-item">
+                        <i class="fa-solid fa-map-location-dot" style="color: #60a5fa;"></i>
+                        <div class="map-stat-info">
+                            <span class="label">전국 검색 범위</span>
+                            <span class="val" style="color: #60a5fa;">대한민국 전역</span>
+                        </div>
+                    </div>
+                    <div class="map-stat-item">
+                        <i class="fa-solid fa-shield-halved" style="color: var(--difficulty-easy);"></i>
+                        <div class="map-stat-info">
+                            <span class="label">안전지대 지수</span>
+                            <span class="val" id="mapStatSafety" style="color: var(--difficulty-easy);">초보보호 가동</span>
+                        </div>
+                    </div>
+                    <div class="map-stat-item">
+                        <i class="fa-solid fa-circle-nodes" style="color: var(--kakao-yellow);"></i>
+                        <div class="map-stat-info">
+                            <span class="label">실시간 연동 상태</span>
+                            <span class="val" style="color: var(--kakao-yellow);">API 정상 연결</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floating Turn-by-Turn Navigation HUD overlay (initially hidden) -->
+                <div class="nav-hud" id="navHud" style="display: none;">
+                    <div class="hud-direction-icon">
+                        <i class="fa-solid fa-turn-right" id="hudDirectionIcon"></i>
+                    </div>
+                    <div class="hud-info">
+                        <div class="hud-main-instruction" id="hudInstruction">300m 앞 사림사거리에서 우회전</div>
+                        <div class="hud-sub-instruction">
+                            <span class="hud-time" id="hudTime">3분 소요</span>
+                            <span class="hud-divider">|</span>
+                            <span class="hud-distance" id="hudDistance">850m</span>
+                        </div>
+                    </div>
+                    <button class="btn-hud-close" onclick="stopInAppNavigation()">
+                        <i class="fa-solid fa-circle-xmark"></i> 안내 종료
+                    </button>
+                </div>
+
+                <!-- Kakao Map Mount Target -->
+                <div id="map"></div>
+
+                <!-- Recenter Button -->
+                <button class="recenter-btn" onclick="recenterMap()" title="내 위치 재검색">
+                    <i class="fa-solid fa-location-crosshairs"></i>
+                </button>
+
+                <!-- Visual Fallback Mock Map -->
+                <div class="mock-map-fallback" id="mockMap">
+                    <!-- Fallback Alert Banner -->
+                    <div class="fallback-alert-banner">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span>Kakao Map SDK 로드 대기 중 (오프라인 데모 맵 구동)</span>
+                    </div>
+
+                    <!-- Custom Road & Park Vectors for stylized mock map -->
+                    <svg class="mock-map-bg" viewBox="0 0 400 600" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Grass / Campus Area -->
+                        <rect width="400" height="600" fill="#111827" />
+                        <path d="M 0,100 Q 150,120 250,50 T 400,0 L 400,300 L 0,300 Z" fill="#065f46" opacity="0.15"/>
+                        <path d="M 100,400 Q 200,450 350,380 T 400,550 L 400,600 L 0,600 Z" fill="#065f46" opacity="0.15"/>
+                        
+                        <!-- Roads -->
+                        <path d="M 120,0 L 120,600" stroke="#374151" stroke-width="40" fill="none" />
+                        <path d="M 120,0 L 120,600" stroke="#4b5563" stroke-width="2" stroke-dasharray="10, 10" fill="none" />
+                        
+                        <path d="M 0,250 L 400,250" stroke="#374151" stroke-width="35" fill="none" />
+                        <path d="M 0,250 L 400,250" stroke="#4b5563" stroke-width="2" stroke-dasharray="10, 10" fill="none" />
+                        
+                        <path d="M 120,250 Q 250,350 400,350" stroke="#374151" stroke-width="30" fill="none" />
+                        <path d="M 0,450 Q 200,480 400,450" stroke="#374151" stroke-width="25" fill="none" />
+                        
+                        <!-- SVG Route Line for Mock Map with dash-crawl navigation animation -->
+                        <path id="mockRouteLine" d="M 120,250 L 100,320" stroke="var(--kakao-yellow)" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10, 8" style="display: none; filter: drop-shadow(0 0 8px rgba(254, 229, 0, 0.85));">
+                            <animate attributeName="stroke-dashoffset" values="18;0" dur="1.2s" repeatCount="indefinite" />
+                        </path>
+
+                        <!-- Buildings -->
+                        <rect x="250" y="80" width="80" height="60" rx="8" fill="#1f2937" stroke="#4b5563" stroke-width="2"/>
+                        <text x="290" y="115" fill="#94a3b8" font-size="10" font-weight="700" text-anchor="middle">도심 중심지</text>
+                    </svg>
+
+                    <!-- Mock Markers -->
+                    <div class="mock-marker difficulty-하" id="mock-marker-1" style="top: 320px; left: 100px;" onclick="clickMockMarker(1)">
+                        <div class="marker-pin"><i class="fa-solid fa-parking"></i></div>
+                        <div class="marker-label">모의 주차장 A (하)</div>
+                    </div>
+
+                    <div class="mock-marker difficulty-하" id="mock-marker-2" style="top: 400px; left: 240px;" onclick="clickMockMarker(2)">
+                        <div class="marker-pin"><i class="fa-solid fa-parking"></i></div>
+                        <div class="marker-label">모의 주차장 B (하)</div>
+                    </div>
+
+                    <div class="mock-marker difficulty-상" id="mock-marker-3" style="top: 140px; left: 250px;" onclick="clickMockMarker(3)">
+                        <div class="marker-pin"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        <div class="marker-label">모의 주차장 C (상)</div>
+                    </div>
+
+                    <div class="mock-marker difficulty-상" id="mock-marker-4" style="top: 90px; left: 100px;" onclick="clickMockMarker(4)">
+                        <div class="marker-pin"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        <div class="marker-label">모의 주차장 D (상)</div>
+                    </div>
+
+                    <!-- Mock User Location Car Marker Pin -->
+                    <div class="mock-marker user-location" id="mockUserLocation" style="display: none; z-index: 10; transform: translate(-50%, -50%);">
+                        <div class="marker-pin" style="background: #3b82f6; border-radius: 50%; border: 2.5px solid white; box-shadow: 0 0 12px rgba(59, 130, 246, 0.85); width: 34px; height: 34px; transform: rotate(0deg);">
+                            <i class="fa-solid fa-car" style="color: white; transform: rotate(0deg); font-size: 14px;"></i>
+                        </div>
+                        <div class="marker-label" style="background: #3b82f6; border-color: rgba(255,255,255,0.25);">내 위치</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Dark Prepayment Modal -->
+        <div class="payment-modal" id="paymentModal">
+            <div class="payment-box">
+                <div class="payment-logo">
+                    <i class="fa-solid fa-comment" style="color: var(--kakao-brown);"></i> kakaopay
+                </div>
+                
+                <div class="spinner" id="paymentSpinner"></div>
+                
+                <div class="success-checkmark" id="paymentSuccessIcon">
+                    <div class="check-icon">
+                        <span class="icon-line line-tip"></span>
+                        <span class="icon-line line-long"></span>
+                    </div>
+                </div>
+                
+                <h3 class="payment-text" id="paymentStatusText">카카오페이 결제 승인 요청 중...</h3>
+                <p class="payment-subtext" id="paymentSubtext">보안 연결을 통해 모바일 결제를 진행하고 있습니다.</p>
+                
+                <!-- Simulated digital receipt -->
+                <div class="payment-details" id="paymentDetails">
+                    <div class="payment-details-row">
+                        <span class="label">결제처</span>
+                        <span class="value" id="payDetailLot">창원대 정문 노외주차장</span>
+                    </div>
+                    <div class="payment-details-row">
+                        <span class="label">이용 상품</span>
+                        <span class="value">초보 전용 1시간 사전결제권</span>
+                    </div>
+                    <div class="payment-details-row">
+                        <span class="label">결제 금액</span>
+                        <span class="value" id="payDetailAmount">1,500원</span>
+                    </div>
+                    <div class="payment-details-row">
+                        <span class="label">결제 수단</span>
+                        <span class="value">카카오페이 머니</span>
+                    </div>
+                    <div class="payment-details-row">
+                        <span class="label">승인 정보</span>
+                        <span class="value" style="color: var(--kakao-yellow); font-family: monospace;" id="payDetailId">KXP-92847-81</span>
+                    </div>
+                </div>
+                
+                <button class="payment-close-btn" id="paymentCloseBtn" onclick="closePayment()">
+                    사전결제 승인 완료 및 티켓 활성화
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kakao Map API with services library for places keyword search -->
+    <!-- 카카오 개발자 센터에서 발급받은 실제 자바스크립트 앱 키가 적용되었습니다. &libraries=services 파라미터가 추가되었습니다. -->
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=b4ea136026dcfdb19b0457a77eff8d4&libraries=services"></script>
+    
+    <script>
+        let parkingLots = [];
+        let selectedLotId = null;
+        let isRealMapLoaded = false;
+        let kakaoMap = null;
+        let kakaoMarkers = [];
+        let kakaoWarningOverlays = [];
+        let placesSearchService = null;
+
+        // In-App Navigation States
+        let activePolyline = null;
+        let activeStartMarker = null;
+        let navigationActive = false;
+        let activeInfoWindow = null;
+
+        // Exit Pass Global States
+        let ticketCountdownInterval = null;
+        let ticketSecondsLeft = 3600; // 1 Hour default
+        let currentVehicleNumber = "34오 1234";
+
+        // Fetch Initial Data on startup
+        document.addEventListener("DOMContentLoaded", function() {
+            const initialKeyword = "창원대";
+            generateBarcodeLines("KXP-92847-81");
+
+            fetch('/api/parking-lots')
+                .then(response => response.json())
+                .then(data => {
+                    initMap();
+                    
+                    setTimeout(() => {
+                        document.getElementById('searchInput').value = initialKeyword;
+                        executeSearch(initialKeyword);
+                    }, 500);
+                })
+                .catch(err => {
+                    console.error("초기 API 로딩 실패, 로컬 검색 핸들링 가동", err);
+                    initMap();
+                    setTimeout(() => {
+                        executeSearch(initialKeyword);
+                    }, 500);
+                });
+        });
+
+        // Initialize Kakao Map
+        function initMap() {
+            if (typeof kakao !== 'undefined' && kakao.maps) {
+                isRealMapLoaded = true;
+                document.getElementById('mockMap').style.display = 'none';
+                
+                const container = document.getElementById('map');
+                const options = {
+                    center: new kakao.maps.LatLng(35.245595, 128.692007),
+                    level: 4
+                };
+                
+                kakaoMap = new kakao.maps.Map(container, options);
+                
+                const zoomControl = new kakao.maps.ZoomControl();
+                kakaoMap.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
+
+                if (kakao.maps.services) {
+                    placesSearchService = new kakao.maps.services.Places();
+                }
+            } else {
+                console.log("Kakao Map API가 로드되지 않아 데모 모드로 전환합니다.");
+                document.getElementById('mockMap').style.display = 'flex';
+                document.getElementById('map').style.display = 'none';
+            }
+        }
+
+        // Update Vehicle Number plate live
+        function updateVehicleNumber() {
+            const inputVal = document.getElementById('vehicleInput').value.trim();
+            currentVehicleNumber = inputVal || "34오 1234";
+            
+            const ticketVehicleSpan = document.getElementById('ticketVehicle');
+            if (ticketVehicleSpan) {
+                ticketVehicleSpan.innerText = currentVehicleNumber;
+            }
+        }
+
+        // Handle Form Search Submit
+        function handleSearch(event) {
+            if (event) event.preventDefault();
+            const keyword = document.getElementById('searchInput').value.trim();
+            if (!keyword) {
+                alert('검색어를 입력해 주세요!');
+                return;
+            }
+            executeSearch(keyword);
+        }
+
+        // Execute Search Function
+        function executeSearch(keyword) {
+            let searchKeyword = keyword;
+            if (!keyword.includes('주차장') && !keyword.includes('주차')) {
+                searchKeyword = keyword + ' 주차장';
+            }
+
+            // Stop active navigation when doing a new search
+            if (navigationActive) {
+                stopInAppNavigation();
+            }
+
+            if (isRealMapLoaded && placesSearchService) {
+                placesSearchService.keywordSearch(searchKeyword, function(data, status, pagination) {
+                    if (status === kakao.maps.services.Status.OK) {
+                        processSearchResults(data);
+                    } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
+                        alert(`'${keyword}'에 대한 검색 결과가 없습니다. 다른 검색어를 입력해 주세요.`);
+                    } else {
+                        alert('검색 중 에러가 발생했습니다.');
+                    }
+                });
+            } else {
+                simulateMockSearch(keyword);
+            }
+        }
+
+        // Process places query data
+        function processSearchResults(data) {
+            kakaoMarkers.forEach(m => m.setMap(null));
+            kakaoMarkers = [];
+            kakaoWarningOverlays.forEach(o => o.setMap(null));
+            kakaoWarningOverlays = [];
+
+            const hazardTemplates = [
+                {
+                    title: "골목 상습 불법 주정차 헬구간",
+                    desc: "진입로 50m 전방은 불법 적치물과 주정차로 차량 교행이 절대 불가능합니다. 초보운전자는 진출입 시 후진해야 하는 곤경에 처할 수 있으니 우회하세요."
+                },
+                {
+                    title: "꼬리물기 / 급차선 변경 오거리",
+                    desc: "해당 오거리 교차로는 상습 신호위반 및 꼬리물기가 빈번하여 사각지대가 큽니다. 진입 시 전방 및 우측 시야를 적극 확보하고 비상등을 켜고 진입하세요."
+                },
+                {
+                    title: "학원가 이면도로 보행자 무단횡단 다발",
+                    desc: "골목 램프 출구 시야 사각지대에서 이륜차 및 어린 보행자가 불쑥 튀어나오는 다발 구역입니다. 시속 10km 이하로 서행 및 크락션 대비 요망."
+                }
+            ];
+
+            parkingLots = data.map((item, index) => {
+                const name = item.place_name;
+                let hash = 0;
+                for (let i = 0; i < name.length; i++) {
+                    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+                }
+                hash = Math.abs(hash);
+
+                const isEasy = hash % 2 === 0;
+                const isCongested = hash % 3 === 0;
+                const price = 1000 + (hash % 6) * 500;
+                const capacityTotal = 30 + (hash % 12) * 10;
+                const capacityAvailable = Math.max(1, Math.min(capacityTotal - 2, (hash % capacityTotal)));
+
+                const difficulty = isEasy ? '하' : '상';
+                const difficulty_desc = isEasy ? '난이도 하 (초보 추천)' : '난이도 상 (좁고 위험)';
+                const congestion = isCongested ? '혼잡' : '여유';
+
+                let tags = [];
+                let description = "";
+                if (isEasy) {
+                    tags = ["넓은 공간", "평지 주차", "진입 수월"];
+                    description = "진입로가 막힘없이 트여있으며 주차선이 일반 규격보다 넓어 초보 운전자도 후진 주차가 아주 간편합니다.";
+                } else {
+                    tags = ["통로 좁음", "기둥 다수", "급커브 주의"];
+                    description = "주차 타워 형식 또는 지하 곡선 램프 각도가 깊어 회전반경에 극도의 주의가 요구됩니다. 기둥 충돌을 조심하세요.";
+                }
+
+                const angle = (index * 2.3) % 6.28;
+                const distance = 0.0006 + (hash % 4) * 0.0001; 
+                const dangerLat = parseFloat(item.y) + distance * Math.sin(angle);
+                const dangerLng = parseFloat(item.x) + distance * Math.cos(angle);
+                
+                const hazard = hazardTemplates[hash % hazardTemplates.length];
+
+                return {
+                    id: index + 1,
+                    name: name,
+                    lat: parseFloat(item.y),
+                    lng: parseFloat(item.x),
+                    difficulty: difficulty,
+                    difficulty_desc: difficulty_desc,
+                    congestion: congestion,
+                    capacity_total: capacityTotal,
+                    capacity_available: capacityAvailable,
+                    price_per_hour: price,
+                    description: item.road_address_name || item.address_name || description,
+                    tags: tags,
+                    dangerZone: {
+                        lat: dangerLat,
+                        lng: dangerLng,
+                        title: hazard.title,
+                        desc: hazard.desc
+                    }
+                };
+            });
+
+            renderDashboardCards();
+            updateStats();
+
+            const bounds = new kakao.maps.LatLngBounds();
+            
+            parkingLots.forEach(lot => {
+                const position = new kakao.maps.LatLng(lot.lat, lot.lng);
+                
+                const marker = new kakao.maps.Marker({
+                    position: position,
+                    title: lot.name,
+                    map: kakaoMap,
+                    clickable: true
+                });
+
+                // Custom styled HTML content for the Kakao Maps InfoWindow using DOM Element
+                const percent = Math.round((lot.capacity_available / lot.capacity_total) * 100);
+                const infoDiv = document.createElement('div');
+                infoDiv.style.padding = '8px 10px';
+                infoDiv.style.width = '220px';
+                infoDiv.style.fontFamily = "'Inter', 'Apple SD Gothic Neo', sans-serif";
+                infoDiv.style.borderRadius = '8px';
+                infoDiv.style.backgroundColor = '#ffffff';
+
+                const titleH4 = document.createElement('h4');
+                titleH4.style.margin = '0 0 6px 0';
+                titleH4.style.color = '#1f2937';
+                titleH4.style.fontSize = '13px';
+                titleH4.style.fontWeight = '700';
+                titleH4.style.borderBottom = '1px solid #f3f4f6';
+                titleH4.style.paddingBottom = '4px';
+                titleH4.innerText = lot.name;
+                infoDiv.appendChild(titleH4);
+
+                const feeDiv = document.createElement('div');
+                feeDiv.style.fontSize = '11px';
+                feeDiv.style.color = '#4b5563';
+                feeDiv.style.marginBottom = '4px';
+                feeDiv.innerHTML = `요금: <strong style="color: #2563eb;">${lot.price_per_hour.toLocaleString()}원/시간</strong>`;
+                infoDiv.appendChild(feeDiv);
+
+                const spaceDiv = document.createElement('div');
+                spaceDiv.style.fontSize = '11px';
+                spaceDiv.style.color = '#4b5563';
+                spaceDiv.style.display = 'flex';
+                spaceDiv.style.alignItems = 'center';
+                spaceDiv.style.justifyContent = 'space-between';
+                spaceDiv.innerHTML = `
+                    <span>여유 공간:</span>
+                    <strong style="color: ${lot.capacity_available > 5 ? '#10b981' : '#f59e0b'};">
+                        ${lot.capacity_available} / ${lot.capacity_total}면 (${percent}%)
+                    </strong>
+                `;
+                infoDiv.appendChild(spaceDiv);
+
+                const linkDiv = document.createElement('div');
+                linkDiv.style.marginTop = '6px';
+                linkDiv.style.fontSize = '10px';
+                linkDiv.style.borderTop = '1px solid #f3f4f6';
+                linkDiv.style.paddingTop = '4px';
+                linkDiv.style.textAlign = 'right';
+
+                const linkSpan = document.createElement('span');
+                linkSpan.style.color = '#3b82f6';
+                linkSpan.style.cursor = 'pointer';
+                linkSpan.style.fontWeight = '600';
+                linkSpan.innerText = '길찾기 바로가기 »';
+                linkSpan.onclick = function() {
+                    navigateToLot(lot.name, lot.lat, lot.lng);
+                };
+                linkDiv.appendChild(linkSpan);
+                infoDiv.appendChild(linkDiv);
+
+                const infoWindow = new kakao.maps.InfoWindow({
+                    content: infoDiv
+                });
+
+                // Associate ID and InfoWindow with the marker for interactive selection
+                marker.lotId = lot.id;
+                marker.infoWindow = infoWindow;
+
+                kakao.maps.event.addListener(marker, 'click', function() {
+                    selectParkingLot(lot.id, true);
+                });
+                kakaoMarkers.push(marker);
+                bounds.extend(position);
+
+                const dangerPosition = new kakao.maps.LatLng(lot.dangerZone.lat, lot.dangerZone.lng);
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'warning-overlay';
+                contentDiv.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color: #fff;"></i>';
+                contentDiv.title = lot.dangerZone.title;
+                contentDiv.onclick = function() {
+                    selectParkingLot(lot.id, true);
+                    alert(`🚨 [초보주의구간] ${lot.dangerZone.title}\n\n${lot.dangerZone.desc}`);
+                };
+
+                const customOverlay = new kakao.maps.CustomOverlay({
+                    position: dangerPosition,
+                    content: contentDiv,
+                    yAnchor: 0.5,
+                    xAnchor: 0.5
+                });
+
+                customOverlay.setMap(kakaoMap);
+                kakaoWarningOverlays.push(customOverlay);
+                bounds.extend(dangerPosition);
+            });
+
+            kakaoMap.setBounds(bounds);
+
+            if (parkingLots.length > 0) {
+                selectParkingLot(parkingLots[0].id, true);
+            }
+        }
+
+        // Bidirectional selection & sync between Map InfoWindows and Sidebar Cards
+        function selectParkingLot(lotId, scroll) {
+            selectedLotId = lotId;
+
+            // 1. Highlight corresponding sidebar card
+            document.querySelectorAll('.parking-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            const activeCard = document.getElementById(`parking-card-${lotId}`);
+            if (activeCard) {
+                activeCard.classList.add('active');
+                if (scroll) {
+                    activeCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }
+
+            // 2. Open InfoWindow for matching marker, close others
+            const targetMarker = kakaoMarkers.find(m => m.lotId === lotId);
+            if (targetMarker && targetMarker.infoWindow) {
+                if (activeInfoWindow) {
+                    activeInfoWindow.close();
+                }
+                targetMarker.infoWindow.open(kakaoMap, targetMarker);
+                activeInfoWindow = targetMarker.infoWindow;
+                
+                // Center map at the marker position
+                kakaoMap.panTo(targetMarker.getPosition());
+            }
+        }
+
+        // Render Cards inside Sidebar Panel
+        function renderDashboardCards() {
+            const container = document.getElementById('cardListContainer');
+            container.innerHTML = '';
+
+            if (parkingLots.length === 0) {
+                container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 40px 10px;">검색된 주차장이 없습니다.</div>`;
+                return;
+            }
+
+            parkingLots.forEach(lot => {
+                const percent = Math.round((lot.capacity_available / lot.capacity_total) * 100);
+                const isEasy = lot.difficulty === '하';
+                const isCongested = lot.congestion === '혼잡';
+                
+                const card = document.createElement('div');
+                card.className = `parking-card ${isEasy ? 'difficulty-하' : 'difficulty-상'}`;
+                card.id = `parking-card-${lot.id}`;
+                card.onclick = function(e) {
+                    if(e.target.closest('.action-btn')) return;
+                    selectParkingLot(lot.id, true);
+                };
+
+                card.innerHTML = `
+                    <div class="card-header-row">
+                        <div class="card-name">${lot.name}</div>
+                        <span class="difficulty-indicator ${isEasy ? 'easy' : 'hard'}">
+                            <i class="fa-solid ${isEasy ? 'fa-circle-check' : 'fa-triangle-exclamation'}"></i> 
+                            ${lot.difficulty_desc}
+                        </span>
+                    </div>
+                    
+                    <div class="card-tags">
+                        ${lot.tags.map(t => `<span class="card-tag">${t}</span>`).join('')}
+                    </div>
+
+                    <!-- Glowing Hell Zone Warning banner inside card -->
+                    <div class="card-warning-banner">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        <div class="warning-text">
+                            <strong>[진입경보] ${lot.dangerZone.title}</strong><br>
+                            ${lot.dangerZone.desc}
+                        </div>
+                    </div>
+
+                    <div class="card-grid">
+                        <div class="grid-item">
+                            <span class="label">💰 시간당 요금</span>
+                            <span class="val">${lot.price_per_hour.toLocaleString()}원</span>
+                        </div>
+                        <div class="grid-item">
+                            <span class="label">🚦 진입로 혼잡</span>
+                            <span class="val ${isCongested ? 'red' : 'green'}">${lot.congestion}</span>
+                        </div>
+                        <div class="grid-item" style="grid-column: span 2;">
+                            <span class="label">📊 여유 공간: <strong>${lot.capacity_available} / ${lot.capacity_total} 면 (${percent}%)</strong></span>
+                            <div class="capacity-bar-container">
+                                <div class="capacity-bar" style="width: ${percent}%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-actions">
+                        <button class="action-btn btn-navi" onclick="navigateToLot('${lot.name.replace(/'/g, "\\'")}', ${lot.lat}, ${lot.lng})">
+                            <i class="fa-solid fa-route"></i> 길찾기
+                        </button>
+                        <button class="action-btn btn-pay" onclick="triggerPrepayment(${lot.id})">
+                            <i class="fa-solid fa-wallet"></i> 사전 결제
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Update stats summary count
+        function updateStats() {
+            const total = parkingLots.length;
+            const easy = parkingLots.filter(l => l.difficulty === '하').length;
+            
+            document.getElementById('statRecommend').innerText = `${easy}개소 추천`;
+            document.getElementById('statPrepay').innerText = `${total}개 결제 가능`;
+            document.getElementById('totalCount').innerText = `총 ${total}개의 주차장이 검색되었습니다.`;
+        }
+
+        // In-App Navigation Handler
+        function startInAppNavigation(lotId) {
+            const lot = parkingLots.find(l => l.id === lotId);
+            if (!lot) return;
+
+            navigationActive = true;
+            selectParkingLot(lotId, true);
+
+            // Hide Floating Stats & Show HUD
+            document.querySelector('.map-floating-stats').style.display = 'none';
+            document.getElementById('navHud').style.display = 'flex';
+
+            // Show initial loading text in HUD
+            document.getElementById('hudInstruction').innerText = "경로 탐색 및 도로망 계산 중...";
+            document.getElementById('hudTime').innerText = "계산 중";
+            document.getElementById('hudDistance').innerText = "";
+
+            // Clear any existing polylines
+            if (activePolyline) activePolyline.setMap(null);
+            if (activeStartMarker) activeStartMarker.setMap(null);
+
+            // Calculate start coordinate offset by ~350m-500m
+            const hash = lot.id;
+            const latDiff = 0.005 * (hash % 2 === 0 ? 1 : -1);
+            const lngDiff = 0.005 * (hash % 3 === 0 ? 1 : -1);
+            const startLat = lot.lat + latDiff;
+            const startLng = lot.lng + lngDiff;
+
+            if (isRealMapLoaded && kakaoMap) {
+                // Fetch actual road routing coordinates from our Flask backend proxy (bypassing CORS & browser blocks)
+                const url = `/api/route?start_lng=${startLng}&start_lat=${startLat}&dest_lng=${lot.lng}&dest_lat=${lot.lat}`;
+
+                fetch(url)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.code === 'Ok' && data.points && data.points.length > 0) {
+                            // Convert to Kakao LatLng objects
+                            const linePath = data.points.map(p => new kakao.maps.LatLng(p[0], p[1]));
+                            
+                            // Draw Polyline
+                            activePolyline = new kakao.maps.Polyline({
+                                path: linePath,
+                                strokeWeight: 6,
+                                strokeColor: '#3b82f6', // Glowing blue path
+                                strokeOpacity: 0.85,
+                                strokeStyle: 'solid'
+                            });
+                            activePolyline.setMap(kakaoMap);
+
+                            // Snapped start position
+                            const snappedStartLatLng = linePath[0];
+
+                            // Draw pulsing GPS car dot
+                            const myLocationDiv = document.createElement('div');
+                            myLocationDiv.className = 'user-gps-pin';
+                            myLocationDiv.style.width = '24px';
+                            myLocationDiv.style.height = '24px';
+                            myLocationDiv.style.borderRadius = '50%';
+                            myLocationDiv.style.backgroundColor = '#3b82f6';
+                            myLocationDiv.style.border = '2px solid white';
+                            myLocationDiv.style.boxShadow = '0 0 10px rgba(59, 130, 246, 0.9)';
+                            myLocationDiv.innerHTML = '<i class="fa-solid fa-car" style="color: #fff; font-size: 10px; display: flex; align-items: center; justify-content: center; height:100%;"></i>';
+
+                            activeStartMarker = new kakao.maps.CustomOverlay({
+                                position: snappedStartLatLng,
+                                content: myLocationDiv,
+                                yAnchor: 0.5,
+                                xAnchor: 0.5
+                            });
+                            activeStartMarker.setMap(kakaoMap);
+
+                            // Format distance & duration
+                            const durationMins = Math.max(1, Math.round(data.duration / 60));
+                            const distanceStr = data.distance >= 1000 ? `${(data.distance / 1000).toFixed(1)}km` : `${Math.round(data.distance)}m`;
+
+                            // Update HUD with dynamic instruction from backend
+                            document.getElementById('hudInstruction').innerText = data.instruction;
+                            document.getElementById('hudTime').innerText = `${durationMins}분 소요`;
+                            document.getElementById('hudDistance').innerText = distanceStr;
+                            document.getElementById('hudDirectionIcon').className = data.direction_icon;
+
+                            // Adjust bounds
+                            const bounds = new kakao.maps.LatLngBounds();
+                            bounds.extend(snappedStartLatLng);
+                            bounds.extend(new kakao.maps.LatLng(lot.lat, lot.lng));
+                            kakaoMap.setBounds(bounds);
+                        } else {
+                            drawSimpleFallbackRoute(lot, startLat, startLng);
+                        }
+                    })
+                    .catch(err => {
+                        console.error("OSRM API 에러. 단순 직선 코너 경로로 대체합니다.", err);
+                        drawSimpleFallbackRoute(lot, startLat, startLng);
+                    });
+            } else {
+                // Mock Map routing fallback
+                const mockUser = document.getElementById('mockUserLocation');
+                const mockRoute = document.getElementById('mockRouteLine');
+                
+                const markerCoords = [
+                    { x: 100, y: 320 }, // lot 1
+                    { x: 240, y: 400 }, // lot 2
+                    { x: 250, y: 140 }, // lot 3
+                    { x: 100, y: 90 }   // lot 4
+                ];
+                
+                const coord = markerCoords[(lot.id - 1) % markerCoords.length];
+                
+                // Position mock user at road intersection (120, 250)
+                mockUser.style.left = '120px';
+                mockUser.style.top = '250px';
+                mockUser.style.display = 'flex';
+                
+                // Adjust route path dynamically
+                mockRoute.setAttribute('d', `M 120,250 L ${coord.x},${coord.y}`);
+                mockRoute.style.display = 'block';
+                
+                document.getElementById('hudInstruction').innerText = "데모 주행 경로 안내 중 (서행)";
+                document.getElementById('hudTime').innerText = "2분 소요";
+                document.getElementById('hudDistance').innerText = "450m";
+                document.getElementById('hudDirectionIcon').className = "fa-solid fa-diamond-turn-right";
+            }
+        }
+
+        // Simpler fallback router if OSRM is offline or blocks
+        function drawSimpleFallbackRoute(lot, startLat, startLng) {
+            const startLatLng = new kakao.maps.LatLng(startLat, startLng);
+            const midLatLng = new kakao.maps.LatLng(startLat, lot.lng); // Corner turn point
+            const destLatLng = new kakao.maps.LatLng(lot.lat, lot.lng);
+
+            const routePath = [startLatLng, midLatLng, destLatLng];
+
+            // Draw Polyline
+            activePolyline = new kakao.maps.Polyline({
+                path: routePath,
+                strokeWeight: 6,
+                strokeColor: '#3b82f6',
+                strokeOpacity: 0.85,
+                strokeStyle: 'solid'
+            });
+            activePolyline.setMap(kakaoMap);
+
+            const myLocationDiv = document.createElement('div');
+            myLocationDiv.className = 'user-gps-pin';
+            myLocationDiv.style.width = '24px';
+            myLocationDiv.style.height = '24px';
+            myLocationDiv.style.borderRadius = '50%';
+            myLocationDiv.style.backgroundColor = '#3b82f6';
+            myLocationDiv.style.border = '2px solid white';
+            myLocationDiv.style.boxShadow = '0 0 10px rgba(59, 130, 246, 0.9)';
+            myLocationDiv.innerHTML = '<i class="fa-solid fa-car" style="color: #fff; font-size: 10px; display: flex; align-items: center; justify-content: center; height:100%;"></i>';
+
+            activeStartMarker = new kakao.maps.CustomOverlay({
+                position: startLatLng,
+                content: myLocationDiv,
+                yAnchor: 0.5,
+                xAnchor: 0.5
+            });
+            activeStartMarker.setMap(kakaoMap);
+
+            document.getElementById('hudInstruction').innerText = "도로를 경유하여 우회전 진입 (안전 속도 유지)";
+            document.getElementById('hudTime').innerText = "4분 소요";
+            document.getElementById('hudDistance').innerText = "850m";
+            document.getElementById('hudDirectionIcon').className = "fa-solid fa-turn-right";
+
+            const bounds = new kakao.maps.LatLngBounds();
+            bounds.extend(startLatLng);
+            bounds.extend(destLatLng);
+            kakaoMap.setBounds(bounds);
+        }
+
+        // Cancel In-App Navigation
+        function stopInAppNavigation() {
+            navigationActive = false;
+
+            // Show Floating Stats & Hide HUD
+            document.querySelector('.map-floating-stats').style.display = 'flex';
+            document.getElementById('navHud').style.display = 'none';
+
+            if (isRealMapLoaded && kakaoMap) {
+                if (activePolyline) {
+                    activePolyline.setMap(null);
+                    activePolyline = null;
+                }
+                if (activeStartMarker) {
+                    activeStartMarker.setMap(null);
+                    activeStartMarker = null;
+                }
+                
+                // Recenter map
+                recenterMap();
+            } else {
+                // Hide mock routing elements
+                document.getElementById('mockRouteLine').style.display = 'none';
+                document.getElementById('mockUserLocation').style.display = 'none';
+            }
+        }
+
+        // Open Kakao Map search route in a new tab
+        function navigateToLot(name, lat, lng) {
+            const naviUrl = `https://map.kakao.com/link/to/${encodeURIComponent(name)},${lat},${lng}`;
+            window.open(naviUrl, '_blank');
+        }
+
+        // Mock Search Simulation
+        function simulateMockSearch(keyword) {
+            parkingLots = [
+                {
+                    id: 1,
+                    name: `${keyword} KTX역전 민영주차장`,
+                    lat: 35.2442,
+                    lng: 128.6895,
+                    difficulty: "하",
+                    difficulty_desc: "난이도 하 (초보 추천)",
+                    congestion: "여유",
+                    capacity_total: 120,
+                    capacity_available: 56,
+                    price_per_hour: 2500,
+                    description: "평평하고 시야 확보가 뛰어납니다.",
+                    tags: ["진입 편함", "평지 야외"],
+                    dangerZone: {
+                        lat: 35.2447,
+                        lng: 128.6899,
+                        title: "진입로 불법주차 교행 마비 골목",
+                        desc: "KTX 주변 불법 적치 하역 트럭으로 주차 진입 코너에서 후진해야 하는 헬구간이 상시 발생하오니 안전한 우회로를 타세요."
+                    }
+                },
+                {
+                    id: 2,
+                    name: `${keyword} 중앙 공영주차장`,
+                    lat: 35.2415,
+                    lng: 128.6950,
+                    difficulty: "하",
+                    difficulty_desc: "난이도 하 (초보 추천)",
+                    congestion: "여유",
+                    capacity_total: 80,
+                    capacity_available: 34,
+                    price_per_hour: 1500,
+                    description: "초보를 위한 주차 안내 보조원이 상시 배치됩니다.",
+                    tags: ["보조원 유", "주차 유도선"],
+                    dangerZone: {
+                        lat: 35.2419,
+                        lng: 128.6955,
+                        title: "배달 이륜차 맹속 진입 골목",
+                        desc: "상가 골목 교차점 부근으로 배달 라이더 오토바이가 시야 밖에서 다발적으로 튀어나옵니다. 비상 깜빡이 필수 점등 구간."
+                    }
+                },
+                {
+                    id: 3,
+                    name: `${keyword} 메가 쇼핑몰 지하주차장`,
+                    lat: 35.2470,
+                    lng: 128.6935,
+                    difficulty: "상",
+                    difficulty_desc: "난이도 상 (좁고 위험)",
+                    congestion: "혼잡",
+                    capacity_total: 200,
+                    capacity_available: 8,
+                    price_per_hour: 4000,
+                    description: "지하 주차 입구 통로가 급커브로 나선형이어서 조심하셔야 합니다.",
+                    tags: ["나선형 램프", "내부 정체"],
+                    dangerZone: {
+                        lat: 35.2475,
+                        lng: 128.6940,
+                        title: "입출차 꼬리물기 상습 정체 교차점",
+                        desc: "교차로 급회전 진입로 차량들이 꼬리를 물어 진입 차선 확보가 극히 어렵고 사각지대가 큽니다. 우회 주차 건물 추천."
+                    }
+                },
+                {
+                    id: 4,
+                    name: `${keyword} 뒷골목 이면도로 주차장`,
+                    lat: 35.2482,
+                    lng: 128.6875,
+                    difficulty: "상",
+                    difficulty_desc: "난이도 상 (좁고 위험)",
+                    congestion: "혼잡",
+                    capacity_total: 15,
+                    capacity_available: 1,
+                    price_per_hour: 800,
+                    description: "골목길 평행 주차 공간으로 입출차가 어렵습니다.",
+                    tags: ["평행 주차", "시야 협소"],
+                    dangerZone: {
+                        lat: 35.2487,
+                        lng: 128.6879,
+                        title: "평행주차 빌런 다수 헬골목",
+                        desc: "평행 주차 구간 간격이 매우 협소하고 전후방 차량 돌출 주차로 경미한 긁힘 사고가 극히 잦은 위험 구역입니다."
+                    }
+                }
+            ];
+            
+            renderDashboardCards();
+            updateStats();
+            selectParkingLot(1, true);
+            alert(`카카오 맵 서비스 모듈을 불러오지 못했습니다. '${keyword}'에 대한 데모 주차장을 모의 출력합니다.`);
+        }
+
+        // Mock marker click callback
+        function clickMockMarker(id) {
+            selectParkingLot(id, true);
+        }
+
+        // Recenter Map
+        function recenterMap() {
+            if (isRealMapLoaded && kakaoMap) {
+                if (parkingLots.length > 0) {
+                    const bounds = new kakao.maps.LatLngBounds();
+                    parkingLots.forEach(lot => bounds.extend(new kakao.maps.LatLng(lot.lat, lot.lng)));
+                    kakaoMap.setBounds(bounds);
+                } else {
+                    kakaoMap.panTo(new kakao.maps.LatLng(35.245595, 128.692007));
+                }
+            } else {
+                const mockMap = document.getElementById('mockMap');
+                mockMap.style.transition = 'transform 0.1s ease';
+                mockMap.style.transform = 'scale(1.02)';
+                setTimeout(() => mockMap.style.transform = 'scale(1)', 100);
+            }
+        }
+
+        // Prepayment trigger
+        let payingLot = null;
+        let currentAuthId = "";
+        
+        function triggerPrepayment(id) {
+            payingLot = parkingLots.find(l => l.id === id);
+            if (!payingLot) return;
+
+            const modal = document.getElementById('paymentModal');
+            const spinner = document.getElementById('paymentSpinner');
+            const successIcon = document.getElementById('paymentSuccessIcon');
+            const statusText = document.getElementById('paymentStatusText');
+            const subtext = document.getElementById('paymentSubtext');
+            const details = document.getElementById('paymentDetails');
+            const closeBtn = document.getElementById('paymentCloseBtn');
+
+            // Reset States
+            spinner.style.display = 'block';
+            successIcon.style.display = 'none';
+            details.style.display = 'none';
+            closeBtn.style.display = 'none';
+            statusText.innerText = '카카오페이 결제 승인 요청 중...';
+            subtext.style.display = 'block';
+            subtext.innerText = '카카오페이 결제 게이트웨이 보안 채널을 연결하고 있습니다.';
+
+            modal.classList.add('open');
+
+            document.getElementById('payDetailLot').innerText = payingLot.name;
+            document.getElementById('payDetailAmount').innerText = payingLot.price_per_hour.toLocaleString() + '원';
+            
+            currentAuthId = 'KXP-' + Math.floor(10000 + Math.random() * 90000) + '-' + Math.floor(10 + Math.random() * 89);
+            document.getElementById('payDetailId').innerText = currentAuthId;
+
+            // Wait 1.8 seconds to simulate payment processing
+            setTimeout(() => {
+                spinner.style.display = 'none';
+                successIcon.style.display = 'block';
+                
+                const lines = successIcon.querySelectorAll('.icon-line');
+                lines.forEach(l => l.style.animation = 'none');
+                setTimeout(() => {
+                    successIcon.querySelector('.line-tip').style.animation = 'draw-tip 0.4s ease-in-out forwards';
+                    successIcon.querySelector('.line-long').style.animation = 'draw-long 0.4s ease-in-out forwards';
+                }, 50);
+
+                statusText.innerHTML = '<span style="color: var(--difficulty-easy);">결제 완료 및 자동 입차 예약됨</span>';
+                subtext.innerText = '1시간 사전 주차 예약이 완료되었습니다. 무선 하이패스 정산 통과 기능이 활성화되었습니다.';
+                
+                details.style.display = 'block';
+                closeBtn.style.display = 'block';
+            }, 1800);
+        }
+
+        // Close prepayment modal and activate Digital Pass Card inside sidebar
+        function closePayment() {
+            document.getElementById('paymentModal').classList.remove('open');
+            
+            if (payingLot) {
+                // Deduct capacity
+                if (payingLot.capacity_available > 0) {
+                    payingLot.capacity_available -= 1;
+                    renderDashboardCards();
+                    selectParkingLot(payingLot.id, false);
+                }
+
+                // 1. Populate values to the Digital Ticket
+                document.getElementById('ticketLotName').innerText = payingLot.name;
+                document.getElementById('ticketAmount').innerText = payingLot.price_per_hour.toLocaleString() + '원';
+                document.getElementById('ticketVehicle').innerText = currentVehicleNumber;
+                document.getElementById('barcodeValue').innerText = currentAuthId;
+                
+                const now = new Date();
+                const entryStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+                document.getElementById('ticketEntryTime').innerText = entryStr;
+
+                // 2. Generate CSS Barcode lines
+                generateBarcodeLines(currentAuthId);
+
+                // 3. Show Active Pass UI in Sidebar
+                document.getElementById('activeTicketDock').style.display = 'block';
+                document.getElementById('activeTicketDock').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                // 4. Start Countdown timer (60 minutes = 3600 seconds)
+                startTicketCountdown(3600);
+            }
+        }
+
+        // Generate stylized CSS barcode stripes deterministically from ID
+        function generateBarcodeLines(code) {
+            const container = document.getElementById('barcodeLines');
+            if (!container) return;
+            container.innerHTML = '';
+
+            let hash = 0;
+            for(let i=0; i<code.length; i++) {
+                hash = code.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            hash = Math.abs(hash);
+
+            for (let i = 0; i < 35; i++) {
+                const span = document.createElement('span');
+                const stripeWidth = 1 + ((hash + i * 3) % 4);
+                const opacity = 0.5 + ((hash + i * 2) % 6) / 10;
+                
+                span.style.width = stripeWidth + 'px';
+                span.style.opacity = opacity;
+                
+                if ((hash + i) % 7 === 0) {
+                    span.style.background = 'transparent';
+                    span.style.width = '3px';
+                }
+                
+                container.appendChild(span);
+            }
+        }
+
+        // Start countdown timer
+        function startTicketCountdown(durationSeconds) {
+            if (ticketCountdownInterval) {
+                clearInterval(ticketCountdownInterval);
+            }
+
+            ticketSecondsLeft = durationSeconds;
+            updateTimerDisplay();
+
+            ticketCountdownInterval = setInterval(function() {
+                ticketSecondsLeft--;
+                if (ticketSecondsLeft <= 0) {
+                    clearInterval(ticketCountdownInterval);
+                    ticketSecondsLeft = 0;
+                    document.getElementById('ticketTimer').innerText = "이용 만료";
+                    document.getElementById('ticketTimer').style.color = "var(--difficulty-hard)";
+                } else {
+                    updateTimerDisplay();
+                }
+            }, 1000);
+        }
+
+        // Formats seconds to HH:MM:SS and updates screen
+        function updateTimerDisplay() {
+            const hrs = Math.floor(ticketSecondsLeft / 3600);
+            const mins = Math.floor((ticketSecondsLeft % 3600) / 60);
+            const secs = ticketSecondsLeft % 60;
+            
+            const timeString = `${String(hrs).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+            document.getElementById('ticketTimer').innerText = timeString;
+        }
+
+        // Simulate gate exit (Reset states)
+        function simulateGateExit() {
+            if (ticketCountdownInterval) {
+                clearInterval(ticketCountdownInterval);
+            }
+
+            const statusText = document.querySelector('.sensor-status-text');
+            const sensorBox = document.querySelector('.sensor-ripple-container');
+            
+            statusText.innerText = "차량 정산 확인 완료! 차단기가 열립니다.";
+            statusText.style.color = "var(--kakao-yellow)";
+            sensorBox.style.borderColor = "var(--kakao-yellow)";
+            
+            document.querySelectorAll('.wifi-ripple .wave').forEach(w => {
+                w.style.borderColor = "var(--kakao-yellow)";
+            });
+            document.querySelector('.wifi-ripple .circle').style.backgroundColor = "var(--kakao-yellow)";
+
+            setTimeout(() => {
+                document.getElementById('activeTicketDock').style.transition = 'opacity 0.5s ease';
+                document.getElementById('activeTicketDock').style.opacity = '0';
+                
+                setTimeout(() => {
+                    document.getElementById('activeTicketDock').style.display = 'none';
+                    document.getElementById('activeTicketDock').style.opacity = '1';
+                    payingLot = null;
+                    alert('출차가 완료되었습니다. 영수증 패스가 비활성화되었습니다.');
+                }, 500);
+            }, 1800);
+        }
+    </script>
+</body>
+</html>
